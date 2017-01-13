@@ -28,6 +28,13 @@
                 </button>
                 <a class="navbar-brand" href="/">AAT</a>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
+
+                    <%
+                        String requestUri = (String) request.getAttribute("javax.servlet.forward.request_uri");
+                        UserService userService = UserServiceFactory.getUserService();
+                        User user = userService.getCurrentUser();
+                    %>
+                    <c:set var="requestUri" value="<%= requestUri %>"></c:set>
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item ${requestUri == '/' ? 'active' : ''}">
                             <a class="nav-link" href="/">Home</a>
@@ -36,12 +43,6 @@
                             <a class="nav-link" href="/lectures">Lectures</a>
                         </li>
                     </ul>
-                    <%
-                        String requestUri = (String) request.getAttribute("javax.servlet.forward.request_uri");
-                        UserService userService = UserServiceFactory.getUserService();
-                        User user = userService.getCurrentUser();
-                    %>
-                    <c:set var="requestUri" value="<%= requestUri %>"></c:set>
                     <ul class="navbar-nav">
                         <c:choose>
                             <c:when test="<%= userService.isUserLoggedIn() %>">
