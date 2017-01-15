@@ -2,8 +2,8 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <t:base>
-    <jsp:attribute name="title">Dashboard</jsp:attribute>
+    <jsp:attribute name="title">Edit Lecture</jsp:attribute>
     <jsp:body>
-        <p>//TODO: Dashboard</p>
+        <p>//TODO: Edit Lecture here</p>
     </jsp:body>
 </t:base>

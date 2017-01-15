@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ tag import="com.google.appengine.api.users.UserService" %>
 <%@ tag import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ tag import="com.google.appengine.api.users.User" %>
@@ -17,7 +18,8 @@
         <title><%= title %> - Automated Attendance Tracking</title>
 
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css" />
         <jsp:invoke fragment="stylesheets"/>
     </head>
     <body>
@@ -30,17 +32,22 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
 
                     <%
-                        String requestUri = (String) request.getAttribute("javax.servlet.forward.request_uri");
+                        String requestUri;
+                        if(request.getAttribute("javax.servlet.forward.request_uri") != null) {
+                            requestUri = (String) request.getAttribute("javax.servlet.forward.request_uri");
+                        }else{
+                            requestUri = request.getRequestURI();
+                        }
                         UserService userService = UserServiceFactory.getUserService();
                         User user = userService.getCurrentUser();
                     %>
                     <c:set var="requestUri" value="<%= requestUri %>"></c:set>
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item ${requestUri == '/' ? 'active' : ''}">
-                            <a class="nav-link" href="/">Home</a>
+                            <a class="nav-link" href="/">Dashboard</a>
                         </li>
-                        <li class="nav-item ${requestUri == '/lectures' ? 'active' : ''}">
-                            <a class="nav-link" href="/lectures">Lectures</a>
+                        <li class="nav-item ${fn:startsWith(requestUri, '/lectures/') ? 'active' : ''}">
+                            <a class="nav-link" href="/lectures/">Lectures</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
@@ -72,9 +79,9 @@
         </div>
 
         <!-- jQuery first, then Tether, then Bootstrap JS. -->
-        <script src="js/jquery-3.1.1.slim.min.js"></script>
-        <script src="js/tether.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
+        <script src="/js/jquery-3.1.1.slim.min.js"></script>
+        <script src="/js/tether.min.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
 
         <jsp:invoke fragment="scripts"/>
     </body>

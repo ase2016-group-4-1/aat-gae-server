@@ -1,4 +1,4 @@
-package de.tum.ase.group4.team1;
+package de.tum.ase.group4.team1.models;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Entity;
