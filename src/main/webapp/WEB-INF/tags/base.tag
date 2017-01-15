@@ -46,8 +46,8 @@
                         <li class="nav-item ${requestUri == '/' ? 'active' : ''}">
                             <a class="nav-link" href="/">Dashboard</a>
                         </li>
-                        <li class="nav-item ${fn:startsWith(requestUri, '/lectures/') ? 'active' : ''}">
-                            <a class="nav-link" href="/lectures/">Lectures</a>
+                        <li class="nav-item ${fn:startsWith(requestUri, '/lectures') ? 'active' : ''}">
+                            <a class="nav-link" href="/lectures">Lectures</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">

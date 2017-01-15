@@ -8,21 +8,21 @@
     <groupId>de.tum.ase.group4.team1</groupId>
     <artifactId>aat-gae-server</artifactId>
 
-<!-- [START set_versions] -->
     <properties>
         <appengine.app.version>1</appengine.app.version>
         <appengine.sdk.version>1.9.48</appengine.sdk.version>
 
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <objectify.version>5.1.14</objectify.version>
         <guava.version>20.0</guava.version>
 
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.framework.version>4.3.5.RELEASE</spring.framework.version>
     </properties>
 
     <prerequisites>
         <maven>3.1.0</maven>
     </prerequisites>
-<!-- [END set_versions] -->
 
     <dependencies>
         <!-- Compile/runtime dependencies -->
@@ -33,8 +33,8 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -42,8 +42,7 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
-
-<!-- [START Objectify_Dependencies] -->
+        <!-- Objectify Dependencies -->
         <dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
@@ -54,7 +53,22 @@
           <artifactId>objectify</artifactId>
           <version>${objectify.version}</version>
         </dependency>
-<!-- [END Objectify_Dependencies] -->
+        <!-- Spring Dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -67,6 +81,50 @@
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-stubs</artifactId>
             <version>${appengine.sdk.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Spring Testing Dependencies -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.2.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.2.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hamcrest-core</artifactId>
+                    <groupId>org.hamcrest</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.framework.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

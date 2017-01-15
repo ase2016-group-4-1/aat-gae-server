@@ -13,6 +13,10 @@ public class Lecture {
     public Lecture() { }
 
     public Lecture(String title, String semester) {
-
+        if (semester != null) {
+            this.semesterKey = Key.create(Semester.class, semester);
+        } else {
+            this.semesterKey = Key.create(Semester.getCurrentSemester());
+        }
     }
 }

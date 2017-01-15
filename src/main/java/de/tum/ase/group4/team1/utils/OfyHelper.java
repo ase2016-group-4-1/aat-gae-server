@@ -1,4 +1,4 @@
-package de.tum.ase.group4.team1;
+package de.tum.ase.group4.team1.utils;
 
 import com.googlecode.objectify.ObjectifyService;
 import de.tum.ase.group4.team1.models.ExerciseGroup;
