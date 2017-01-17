@@ -11,10 +11,10 @@ import java.util.List;
 
 @Entity
 public class Semester {
-    public @Id String slug;
-    public String title;
-    public @Index Date begin;
-    public @Index Date end;
+    @Id String slug;
+    String title;
+    @Index Date begin;
+    @Index Date end;
 
     public Semester() {
         Date now = new Date();
@@ -25,7 +25,7 @@ public class Semester {
         initAroundDate(date);
     }
 
-    public void initAroundDate(Date date){
+    private void initAroundDate(Date date){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         int currentMonth = calendar.get(Calendar.MONTH);
@@ -61,23 +61,39 @@ public class Semester {
         this.end = end;
     }
 
-    static public Semester getCurrentSemester() {
+    static public List<Semester> getSemesters() {
         Date now = new Date();
-        Semester currentSemester = null;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        getSemesterForCurrentDate();
+        for(int i = 0; i < 4; i++) {
+            calendar.add(Calendar.MONTH, 6);
+            getSemesterForDate(calendar.getTime());
+        }
+        return ObjectifyService.ofy().load().type(Semester.class).order("begin").list();
+    }
+
+    static public Semester getSemesterForCurrentDate() {
+        Date now = new Date();
+        return getSemesterForDate(now);
+    }
+
+    static public Semester getSemesterForDate(Date date) {
+        Semester semester = null;
         // Filtering in-memory as GAE Datastore only supports one inequality filter per query
         List<Semester> semesters = ObjectifyService.ofy().load().type(Semester.class).list();
-        for(Semester semester: semesters) {
-            if(semester.begin != null && semester.end != null) {
-                if (semester.begin.before(now) && semester.end.after(now)) {
-                    currentSemester = semester;
+        for(Semester s: semesters) {
+            if(s.begin != null && s.end != null) {
+                if (s.begin.before(date) && s.end.after(date)) {
+                    semester = s;
                 }
             }
         }
-        if(currentSemester == null){
-            currentSemester = new Semester();
-            ObjectifyService.ofy().save().entity(currentSemester).now();
+        if(semester == null){
+            semester = new Semester(date);
+            ObjectifyService.ofy().save().entity(semester).now();
         }
-        return currentSemester;
+        return semester;
     }
 
     public String getSlug() { return slug; }
@@ -87,10 +103,12 @@ public class Semester {
     public void setTitle(String title) { this.title = title; }
 
     public Date getBegin() { return begin; }
-
     public void setBegin(Date begin) { this.begin = begin; }
 
     public Date getEnd() { return end; }
-
     public void setEnd(Date end) { this.end = end; }
+
+    @Override public String toString() {
+        return title;
+    }
 }

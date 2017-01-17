@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Automated Attendance Tracking</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
+    <link layout:fragment="styles"/>
+</head>
+<body>
+
+<nav th:replace="layout/nav :: nav"></nav>
+
+<div class="container">
+    <div layout:fragment="content" class="text-center">
+        <p>Lorem Ipsum</p>
+    </div>
+</div>
+
+<!-- jQuery first, then Tether, then Bootstrap JS. -->
+<script src="/js/jquery-3.1.1.slim.min.js"></script>
+<script src="/js/tether.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<div layout:fragment="scripts"></div>
+</body>
+</html>

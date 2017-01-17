@@ -1,9 +1,7 @@
 package de.tum.ase.group4.team1.utils;
 
 import com.googlecode.objectify.ObjectifyService;
-import de.tum.ase.group4.team1.models.ExerciseGroup;
-import de.tum.ase.group4.team1.models.Lecture;
-import de.tum.ase.group4.team1.models.Semester;
+import de.tum.ase.group4.team1.models.*;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -16,9 +14,12 @@ public class OfyHelper implements ServletContextListener {
   public void contextInitialized(ServletContextEvent event) {
     // This will be invoked as part of a warmup request, or the first user request if no warmup
     // request.
-    ObjectifyService.register(ExerciseGroup.class);
-    ObjectifyService.register(Lecture.class);
     ObjectifyService.register(Semester.class);
+    ObjectifyService.register(Lecture.class);
+    ObjectifyService.register(ExerciseGroup.class);
+    ObjectifyService.register(Enrollment.class);
+    ObjectifyService.register(Session.class);
+    ObjectifyService.register(Attendance.class);
   }
 
   public void contextDestroyed(ServletContextEvent event) {
