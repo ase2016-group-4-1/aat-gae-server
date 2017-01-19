@@ -27,5 +27,12 @@
 <script src="/js/tether.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <div layout:fragment="scripts"></div>
+<script>
+    $(document).ready(function () {
+        $(".modal").on('shown.bs.modal', function () {
+            $(this).find("input:visible:first").focus();
+        });
+    });
+</script>
 </body>
 </html>

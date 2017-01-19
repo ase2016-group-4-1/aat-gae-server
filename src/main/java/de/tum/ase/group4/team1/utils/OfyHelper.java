@@ -11,18 +11,19 @@ import javax.servlet.ServletContextListener;
  * required to let JSP's access Ofy.
  **/
 public class OfyHelper implements ServletContextListener {
-  public void contextInitialized(ServletContextEvent event) {
-    // This will be invoked as part of a warmup request, or the first user request if no warmup
-    // request.
-    ObjectifyService.register(Semester.class);
-    ObjectifyService.register(Lecture.class);
-    ObjectifyService.register(ExerciseGroup.class);
-    ObjectifyService.register(Enrollment.class);
-    ObjectifyService.register(Session.class);
-    ObjectifyService.register(Attendance.class);
-  }
+    public void contextInitialized(ServletContextEvent event) {
+        // This will be invoked as part of a warmup request, or the first user request if no warmup
+        // request.
+        ObjectifyService.register(AATUser.class);
+        ObjectifyService.register(Semester.class);
+        ObjectifyService.register(Lecture.class);
+        ObjectifyService.register(ExerciseGroup.class);
+        ObjectifyService.register(Enrollment.class);
+        ObjectifyService.register(Session.class);
+        ObjectifyService.register(Attendance.class);
+    }
 
-  public void contextDestroyed(ServletContextEvent event) {
-    // App Engine does not currently invoke this method.
-  }
+    public void contextDestroyed(ServletContextEvent event) {
+        // App Engine does not currently invoke this method.
+    }
 }

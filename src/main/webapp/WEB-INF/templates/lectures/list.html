@@ -11,16 +11,16 @@
             <div class="col-md-2">
                 <ul class="nav flex-column semester-list">
                     <li th:if="${semesters.size()} == 0" class="nav-item text-muted">No semesters found</li>
-                    <li th:each="semester : ${semesters}" class="nav-item">
+                    <li th:each="s : ${semesters}" class="nav-item">
                         <a class="nav-link"
-                           th:classappend="(${semester.slug} eq ${selectedSemester.slug}) ? 'active' : ''"
-                           th:href="${#mvc.url('LC#listWithSemester').arg(0, semester.slug).build()}"
-                           th:text="${semester.title}"></a>
+                           th:classappend="(${s.slug} eq ${semester.slug}) ? 'active' : ''"
+                           th:href="${#mvc.url('LC#listWithSemester').arg(0, s.slug).build()}"
+                           th:text="${s.title}"></a>
                     </li>
                 </ul>
             </div>
             <div class="col-md-10">
-                <h1>Lectures <small>for <span th:text="${selectedSemester.title}"></span></small></h1>
+                <h1>Lectures <small>for <span th:text="${semester.title}"></span></small></h1>
                 <table class="table table-hover">
                     <tr th:if="${lectures.size()} == 0">
                         <td colspan="2" class="text-center text-muted">
@@ -31,13 +31,16 @@
                         </td>
                     </tr>
                     <tr th:each="lecture : ${lectures}">
-                        <td><a th:href="${#mvc.url('LC#detailGroupsList').arg(0, lecture.semester.slug).arg(1, lecture.slug).build()}" th:text="${lecture.title}"></a></td>
-                        <td th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
-                            <div class="float-right">
-                                <a th:href="${#mvc.url('LC#delete').arg(0, lecture.semester.slug).arg(1, lecture.slug).build()}" class="btn btn-secondary">
+                        <td><a th:href="${#mvc.url('LC#detail').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                               th:text="${lecture.title}"></a></td>
+                        <td th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}"
+                            class="text-right align-middle">
+                            <form th:action="${#mvc.url('LC#delete').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                                  class="form-inline" method="post">
+                                <button type="submit" class="btn btn-secondary">
                                     <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 </table>

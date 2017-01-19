@@ -1,175 +1,145 @@
 package de.tum.ase.group4.team1.controllers;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
-import de.tum.ase.group4.team1.models.ExerciseGroup;
-import de.tum.ase.group4.team1.models.Lecture;
-import de.tum.ase.group4.team1.models.Semester;
-import de.tum.ase.group4.team1.models.Session;
+import de.tum.ase.group4.team1.models.*;
+import de.tum.ase.group4.team1.services.SemesterService;
 import de.tum.ase.group4.team1.utils.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.thymeleaf.spring4.expression.Mvc;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 public class LectureController extends BaseController{
+    private SemesterService semesterService = new SemesterService();
     // -- List --
-    @RequestMapping({"/lectures"})
+    @GetMapping({"/lectures"})
     public String list(Model model) {
-        populateModelForList(Semester.getSemesterForCurrentDate(), model);
+        populateModel(semesterService.getCurrentSemester(), model);
         return "lectures/list";
     }
 
-    @RequestMapping("/{semesterSlug}")
+    @GetMapping("/{semesterSlug}")
     public String listWithSemester(@PathVariable String semesterSlug, Model model) {
-        Semester selectedSemester = ObjectifyService.ofy().load().type(Semester.class).id(semesterSlug).now();
-        if(selectedSemester == null){
+        Semester semester = ObjectifyService.ofy().load().type(Semester.class).id(semesterSlug).now();
+        if(semester == null){
             throw new NotFoundException();
         }
-        populateModelForList(selectedSemester, model);
+        populateModel(semester, model);
         return "lectures/list";
-    }
-
-    private void populateModelForList(Semester semester, Model model){
-        List<Semester> semesters = Semester.getSemesters();
-        List<Semester> semestersNotEmpty = new ArrayList<>(semesters.size());
-        for(Semester s : semesters) {
-            if(ObjectifyService.ofy().load().type(Lecture.class).ancestor(s).count() != 0){
-                semestersNotEmpty.add(s);
-            }
-        }
-        model.addAttribute("semesters", semestersNotEmpty);
-        model.addAttribute("allSemesters", semesters);
-        model.addAttribute("selectedSemester", semester);
-        model.addAttribute("lectures",
-                ObjectifyService.ofy().load().type(Lecture.class).ancestor(semester).list()
-        );
-        model.addAttribute("lectureToCreate", new Lecture());
     }
 
     // -- Create --
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public String create(@ModelAttribute("lectureToCreate") Lecture lecture, BindingResult result, Model model) {
-        UserService userService = UserServiceFactory.getUserService();
-        if(!userService.isUserLoggedIn() || !userService.isUserAdmin()){
+    @PostMapping("/create")
+    public String create(@ModelAttribute Lecture lecture, BindingResult result, @RequestParam(required = false) String semesterSlug, Model model) throws UnsupportedEncodingException {
+        // Prepare keys
+        Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
+        // Prepare lecture
+        lecture.setSemester(semesterKey);
+        lecture.generateSlug();
+        // Error validation
+        if(result.hasErrors()) {
+            System.out.println(result.toString());
+            return "redirect:" + listUrl(semesterKey);
+        }
+        if(!userService.isUserLoggedIn() || !userService.isUserAdmin()) {
             // TODO display permission error message
             System.out.println("User not logged in or not administrator");
-            return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#list").build();
+            return "redirect:" + listUrl(semesterKey);
         }
-        if(lecture.getSlug().isEmpty() || lecture.getSemesterKey() == null) {
-            // TODO display message that title should not be empty
-            System.out.println("Title should not be empty");
-            return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#list").build();
+        if(lecture.getTitle() == null || lecture.getTitle().isEmpty()) {
+            // TODO display message that title is required
+            System.out.println("Title is required");
+            return "redirect:" + listUrl(semesterKey);
         }
-        if(ObjectifyService.ofy().load().type(Lecture.class).parent(lecture.getSemesterKey()).id(lecture.getSlug()).now() != null) {
+        if(lecture.getSemester() == null) {
+            // TODO display message that semester is required
+            System.out.println("Semester is required");
+            return "redirect:" + listUrl(semesterKey);
+        }
+        if(ObjectifyService.ofy().load().type(Lecture.class).parent(lecture.getSemester()).id(lecture.getSlug()).now() != null) {
             // TODO display message that lecture with this title/slug already exists in this semester
             System.out.println("Lecture with this title already exists in this semester");
-            return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#list").build();
+            return "redirect:" + listUrl(semesterKey);
         }
-        System.out.println("Saving " + lecture);
+        // Save
         ObjectifyService.ofy().save().entity(lecture).now();
-        if(lecture.getSemester() == Semester.getSemesterForCurrentDate()) {
-            return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#list").build();
-        } else {
-            return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#listWithSemester").arg(0, lecture.getSemester().getSlug()).build();
-        }
-    }
-
-    // -- Delete --
-    @RequestMapping("/{semesterSlug}/{lectureSlug}/delete")
-    public String delete(@PathVariable String semesterSlug, @PathVariable String lectureSlug, Model model){
-        Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
-        Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
-        ObjectifyService.ofy().delete().key(lectureKey);
-        int count = ObjectifyService.ofy().load().type(Lecture.class).ancestor(semesterKey).count();
-        // return to /lectures if it is the current semester or if there are not lectures left in the current semester
-        if(semesterSlug == Semester.getSemesterForCurrentDate().getSlug() || count == 0) {
-            return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#list").build();
-        } else {
-            return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#listWithSemester").arg(0, semesterSlug).build();
-        }
+        // Redirect to list of lectures
+        return "redirect:" + listUrl(semesterKey);
     }
 
     // -- Detail --
-    // -- -- Groups -- --
-    // -- -- -- List -- -- --
-    @RequestMapping(value = "/{semesterSlug}/{lectureSlug}/groups", method = RequestMethod.GET)
-    public String detailGroupsList(@PathVariable String semesterSlug, @PathVariable String lectureSlug, Model model) {
-        Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
-        Lecture lecture =  ObjectifyService.ofy().load().type(Lecture.class).parent(semesterKey).id(lectureSlug).now();
-        List<ExerciseGroup> groups = ObjectifyService.ofy().load().type(ExerciseGroup.class).ancestor(lecture).list();
-        System.out.println(groups);
-        model.addAttribute("lecture", lecture);
-        model.addAttribute("groups", groups);
-        model.addAttribute("activeTab", "groups");
-        model.addAttribute("groupToCreate", new ExerciseGroup());
-        return "lectures/detail";
+    @GetMapping("/{semesterSlug}/{lectureSlug}")
+    public String detail(@PathVariable String semesterSlug, @PathVariable String lectureSlug, Model model){
+        // Prepare keys
+        Key<Semester> semester = Key.create(Semester.class, semesterSlug);
+        Key<Lecture> lecture = Key.create(semester, Lecture.class, lectureSlug);
+        if(userService.isUserLoggedIn()){ // if user signed in
+            // get enrollment count and group count
+            int enrollmentCount = ObjectifyService.ofy().load().type(Enrollment.class)
+                    .filter("user", Key.create(aatUser)).filter("lecture", lecture).count();
+            int groupCount = ObjectifyService.ofy().load().type(ExerciseGroup.class)
+                    .ancestor(lecture).count();
+            // if user is enrolled, go straight to session list
+            // if user is admin, check whether there are groups created, if yes, go straight to session list
+            if(enrollmentCount != 0 || (userService.isUserAdmin() && groupCount != 0)) {
+                return "redirect:" + MvcUriComponentsBuilder.fromMappingName("SC#list")
+                        .arg(0, semesterSlug).arg(1, lectureSlug).build();
+            }
+        }
+        return "redirect:" + MvcUriComponentsBuilder.fromMappingName("GC#list")
+                .arg(0, semesterSlug).arg(1, lectureSlug).build();
     }
 
-    // -- -- -- Create -- -- --
-    @RequestMapping(value = "/{semesterSlug}/{lectureSlug}/groups", method = RequestMethod.POST)
-    public String detailGroupsCreate(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                                     @ModelAttribute("groupToCreate") ExerciseGroup exerciseGroup, BindingResult result, Model model) {
-        UserService userService = UserServiceFactory.getUserService();
-        String listUrl = MvcUriComponentsBuilder.fromMappingName("LC#detailGroupsList").arg(0, semesterSlug).arg(1, lectureSlug).build();
+    // -- Delete --
+    @PostMapping("/{semesterSlug}/{lectureSlug}/delete")
+    public String delete(@PathVariable String semesterSlug, @PathVariable String lectureSlug, Model model){
+        // Build keys from slugs
         Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
-        exerciseGroup.setLectureKey(lectureKey);
-        if(!userService.isUserLoggedIn() || !userService.isUserAdmin()){
-            // TODO display permission error message
-            System.out.println("User not logged in or not administrator");
-            return "redirect:" + listUrl;
-        }
-        if(exerciseGroup.getSlug().isEmpty()) {
-            // TODO display message that title should not be empty
-            System.out.println("Title should not be empty");
-            return "redirect:" + listUrl;
-        }
-        if(ObjectifyService.ofy().load().type(ExerciseGroup.class).parent(exerciseGroup.getLectureKey()).id(exerciseGroup.getSlug()).now() != null) {
-            // TODO display message that lecture with this title/slug already exists in this semester
-            System.out.println("Exercise group with this title already exists in this lecture");
-            return "redirect:" + listUrl;
-        }
-        ObjectifyService.ofy().save().entity(exerciseGroup).now();
-        return "redirect:" + listUrl;
+        // Delete lecture
+        ObjectifyService.ofy().delete().key(lectureKey);
+        // Redirect to list of lectures
+        return "redirect:" + listUrl(semesterKey);
     }
 
-    // -- -- -- Delete -- -- --
-    @RequestMapping("/{semesterSlug}/{lectureSlug}/{groupSlug}/delete")
-    public String detailGroupsDelete(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                                     @PathVariable String groupSlug, Model model){
-        Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
-        Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
-        Key<ExerciseGroup> groupKey = Key.create(lectureKey, ExerciseGroup.class, groupSlug);
-        ObjectifyService.ofy().delete().key(groupKey);
-        return "redirect:" + MvcUriComponentsBuilder.fromMappingName("LC#detailGroupsList").arg(0, semesterSlug).arg(1, lectureSlug).build();
+    private String listUrl(Key<Semester> semester) {
+        int count = ObjectifyService.ofy().load().type(Lecture.class).ancestor(semester).count();
+        boolean isCurrent = semesterService.getCurrentSemester().getSlug().equals(semester.getName());
+        if(isCurrent) { // if current we can redirect to /lectures
+            return MvcUriComponentsBuilder.fromMappingName("LC#list").build();
+        } else { // else we have to redirect to /{semesterSlug}
+            return MvcUriComponentsBuilder.fromMappingName("LC#listWithSemester").arg(0, semester.getName()).build();
+        }
     }
 
+    private void populateModel(Semester semester, Model model){
+        model.addAttribute("semester", semester);
+        // Load all the semesters
+        List<Semester> allSemesters = semesterService.getSemesters();
+        // Take only the semesters with actuall lectures inside them
+        List<Semester> semesters = new ArrayList<>(allSemesters.size());
+        for(Semester s : allSemesters) {
+            int count = ObjectifyService.ofy().load().type(Lecture.class).ancestor(s).count();
+            if(count != 0){
+                semesters.add(s);
+            }
+        }
+        model.addAttribute("semesters", semesters);
+        // Load all the lectures for the given semester
+        model.addAttribute("lectures", ObjectifyService.ofy().load().type(Lecture.class).ancestor(semester).list());
 
-    // -- -- Sessions -- --
-    // -- -- -- List -- -- --
-    @RequestMapping(value = "/{semesterSlug}/{lectureSlug}/sessions", method = RequestMethod.GET)
-    public String detailSessionsList(@PathVariable String semesterSlug, @PathVariable String lectureSlug, Model model) {
-        Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
-        Lecture lecture =  ObjectifyService.ofy().load().type(Lecture.class).parent(semesterKey).id(lectureSlug).now();
-        List<Session> sessions = ObjectifyService.ofy().load().type(Session.class).ancestor(lecture).list();
-        model.addAttribute("lecture", lecture);
-        model.addAttribute("sessions", sessions);
-        model.addAttribute("activeTab", "sessions");
-        return "lectures/detail";
+        if(userService.isUserLoggedIn() && userService.isUserAdmin()) {
+            // New lecture for the new lecture form to be rendered
+            model.addAttribute("allSemesters", allSemesters);
+            model.addAttribute("lectureToCreate", new Lecture());
+        }
     }
-
-    // -- -- -- Create -- -- --
-
 }

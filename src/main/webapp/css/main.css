@@ -11,10 +11,25 @@ ul.semester-list {
     margin-top: 5rem;
 }
 
-td {
-    vertical-align: middle !important;
+table tr td:first-child::after {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    min-height: 38px;
+}
+
+table tr:first-child td {
+    border-top: none;
 }
 
 button.btn-add {
     margin: .75rem;
+}
+
+span.enrollment-check {
+    margin-right: 1.5rem;
+}
+
+form.form-inline {
+    display: inline-block;
 }
