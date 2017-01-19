@@ -1,5 +1,6 @@
 package de.tum.ase.group4.team1.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -54,9 +55,11 @@ public class Semester {
         end = endCalendar.getTime();
     }
 
+    @JsonView(Lecture.Default.class)
     public String getSlug() { return slug; }
     public void setSlug(String slug) { this.slug = slug; }
 
+    @JsonView(Lecture.Default.class)
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 

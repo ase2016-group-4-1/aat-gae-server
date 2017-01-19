@@ -1,5 +1,6 @@
 package de.tum.ase.group4.team1.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.annotation.*;
@@ -26,18 +27,22 @@ public class Session {
 
     @OnSave private void createdNow() { this.createdAt = new Date(); }
 
+    @JsonView(Lecture.Default.class)
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
+    @JsonView(Lecture.Default.class)
     public String getSlug() { return slug; }
     public void setSlug(String slug) { this.slug = slug; }
 
     public Key<Lecture> getLecture() { return lecture; }
     public void setLecture(Key<Lecture> lecture) { this.lecture = lecture; }
 
+    @JsonView(Lecture.Default.class)
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
 
+    @JsonView(Lecture.Default.class)
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
 

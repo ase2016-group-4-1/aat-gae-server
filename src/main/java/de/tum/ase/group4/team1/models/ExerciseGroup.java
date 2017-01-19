@@ -1,5 +1,6 @@
 package de.tum.ase.group4.team1.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.annotation.Entity;
@@ -24,9 +25,11 @@ public class ExerciseGroup {
         }
     }
 
+    @JsonView(Lecture.Default.class)
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
+    @JsonView(Lecture.Default.class)
     public String getSlug() { return slug; }
     public void setSlug(String slug) { this.slug = slug; }
 
