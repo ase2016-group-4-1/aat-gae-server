@@ -50,7 +50,7 @@ public class Semester {
             beginCalendar.set(currentYear, 4, 1);
             endCalendar.set(currentYear, 9, 30);
         }
-        slug = title.toLowerCase().replace("/", "-");
+        slug = title.toLowerCase().replace("/", "-").replace(" ", "");
         begin = beginCalendar.getTime();
         end = endCalendar.getTime();
     }
