@@ -3,6 +3,7 @@
     <application>ase2016-group-4-1</application>
     <version>${appengine.app.version}</version>
     <threadsafe>true</threadsafe>
+    <sessions-enabled>true</sessions-enabled>
     
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>

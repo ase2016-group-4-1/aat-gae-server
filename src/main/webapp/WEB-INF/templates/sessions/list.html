@@ -37,10 +37,14 @@
                         Attend
                     </button>
                 </form>
-                <button th:if="${attendanceMap.containsKey(s.slug)}" class="btn" th:classappend="${attendanceMap.get(s.slug).verifiedAt} == null ? 'btn-outline-warning' : 'btn-outline-success'" disabled>
-                    <i class="fa fa-question" aria-hidden="true" th:if="${attendanceMap.get(s.slug).verifiedAt} == null"></i>
-                    <i class="fa fa-check" aria-hidden="true" th:if="${attendanceMap.get(s.slug).verifiedAt} != null"></i>
-                </button>
+                <div th:if="${attendanceMap.containsKey(s.slug)}" style="display: inline-block;">
+                    <button th:if="${attendanceMap.get(s.slug).verifiedAt} == null" class="btn btn-outline-warning" disabled>
+                        Pending
+                    </button>
+                    <button th:if="${attendanceMap.get(s.slug).verifiedAt} != null" class="btn btn-outline-success" disabled>
+                        Verified
+                    </button>
+                </div>
             </td>
             <td th:if="${!userService.isUserLoggedIn()}" class="text-right align-middle">
                 <button th:if="${s.active} eq true" class="btn btn-outline-success" disabled>Active</button>

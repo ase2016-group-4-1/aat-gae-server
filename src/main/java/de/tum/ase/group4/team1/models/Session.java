@@ -1,13 +1,21 @@
 package de.tum.ase.group4.team1.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.annotation.*;
+import de.tum.ase.group4.team1.services.AATUserService;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 public class Session {
@@ -50,5 +58,30 @@ public class Session {
     public String toString() {
         Lecture lecture = ObjectifyService.ofy().load().key(this.lecture).now();
         return title + (active ? " (active)" : "") + " - " + lecture.toString();
+    }
+
+    // -- Serialization --
+
+    @JsonView(Lecture.Default.class)
+    @JsonProperty("attendance")
+    Map<String, Object> attendanceStatus() {
+        Map<String, Object> attendanceStatus = new HashMap<>();
+        UserService userService = UserServiceFactory.getUserService();
+        if(userService.isUserLoggedIn()) {
+            User user = userService.getCurrentUser();
+            AATUser aatUser = AATUserService.getOrCreateAATUser(user);
+            Attendance attendance = ObjectifyService.ofy().load().type(Attendance.class)
+                    .filter("user", Key.create(aatUser)).filter("lecture", lecture).filter("session", Key.create(this))
+                    .first().now();
+            if(attendance != null) {
+                if (attendance.verifiedAt == null) {
+                    attendanceStatus.put("status", "pending");
+                    attendanceStatus.put("verificationToken", attendance.verificationToken);
+                } else {
+                    attendanceStatus.put("status", "verified");
+                }
+            }
+        }
+        return attendanceStatus;
     }
 }

@@ -1,5 +1,6 @@
 package de.tum.ase.group4.team1.controllers;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import de.tum.ase.group4.team1.models.Enrollment;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -52,7 +54,7 @@ public class GroupController extends BaseController {
     @PostMapping(value = "/{semesterSlug}/{lectureSlug}/groups")
     public String create(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
                          @ModelAttribute("groupToCreate") ExerciseGroup exerciseGroup, BindingResult result,
-                         Model model) throws UnsupportedEncodingException {
+                         RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
         // Prepare keys
         Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
@@ -60,32 +62,36 @@ public class GroupController extends BaseController {
         exerciseGroup.setLecture(lectureKey);
         exerciseGroup.generateSlug();
         // Validation
+        if(result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", result.toString());
+            return "redirect:" + listUrl(semesterKey, lectureKey);
+        }
         if(!userService.isUserLoggedIn() || !userService.isUserAdmin()){
-            // TODO display permission error message
-            System.out.println("User not logged in or not administrator");
+            redirectAttributes.addFlashAttribute("errorTitle", "Could not create exercise group");
+            redirectAttributes.addFlashAttribute("errorMessage", "User not signed in or not an administrator");
             return "redirect:" + listUrl(semesterKey, lectureKey);
         }
         if(exerciseGroup.getTitle().isEmpty()) {
-            // TODO display message that title should not be empty
-            System.out.println("Title should not be empty");
+            redirectAttributes.addFlashAttribute("errorTitle", "Could not create exercise group");
+            redirectAttributes.addFlashAttribute("errorMessage", "Title is a required field");
             return "redirect:" + listUrl(semesterKey, lectureKey);
         }
         if(ObjectifyService.ofy().load().type(ExerciseGroup.class).parent(exerciseGroup.getLecture()).id(exerciseGroup.getSlug()).now() != null) {
-            // TODO display message that lecture with this title/slug already exists in this semester
-            System.out.println("Exercise group with this title already exists in this lecture");
+            redirectAttributes.addFlashAttribute("errorTitle", "Could not create exercise group");
+            redirectAttributes.addFlashAttribute("errorMessage", "Exercise group with this title already exists in this lecture");
             return "redirect:" + listUrl(semesterKey, lectureKey);
         }
         // Save group
         ObjectifyService.ofy().save().entity(exerciseGroup).now();
         // Redirect to group list
-        // TODO display success message
+        redirectAttributes.addFlashAttribute("successMessage", "Exercise group successfully created");
         return "redirect:" + listUrl(semesterKey, lectureKey);
     }
 
     // -- Delete --
     @PostMapping("/{semesterSlug}/{lectureSlug}/groups/{groupSlug}/delete")
     public String delete(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                         @PathVariable String groupSlug, Model model){
+                         @PathVariable String groupSlug, RedirectAttributes redirectAttributes){
         // Prepare keys
         Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
@@ -93,6 +99,7 @@ public class GroupController extends BaseController {
         // Delete group
         ObjectifyService.ofy().delete().key(groupKey);
         // Redirect to group list
+        redirectAttributes.addFlashAttribute("successMessage", "Exercise group successfully deleted");
         return "redirect:" + listUrl(semesterKey, lectureKey);
     }
 

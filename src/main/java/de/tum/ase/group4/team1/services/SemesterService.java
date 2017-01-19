@@ -8,6 +8,10 @@ import java.util.Date;
 import java.util.List;
 
 public class SemesterService {
+    public Semester loadSemester(String semesterSlug) {
+        return ObjectifyService.ofy().load().type(Semester.class).id(semesterSlug).now();
+    }
+
     public List<Semester> getSemesters() {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -25,7 +29,7 @@ public class SemesterService {
         return semesterForDate(now);
     }
 
-    public Semester semesterForDate(Date date) {
+    private Semester semesterForDate(Date date) {
         Semester semester = null;
         // Filtering in-memory as GAE Datastore only supports one inequality filter per query
         List<Semester> semesters = ObjectifyService.ofy().load().type(Semester.class).list();

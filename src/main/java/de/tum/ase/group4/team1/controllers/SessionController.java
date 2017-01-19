@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -59,7 +60,7 @@ public class SessionController extends BaseController {
     @PostMapping("/{semesterSlug}/{lectureSlug}/sessions")
     public String create(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
                          @ModelAttribute("sessionToCreate") Session session, BindingResult result,
-                         Model model) throws UnsupportedEncodingException {
+                         RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
         // Prepare keys
         Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
@@ -67,31 +68,35 @@ public class SessionController extends BaseController {
         session.setLecture(lectureKey);
         session.generateSlug();
         // Validation
+        if(result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", result.toString());
+            return "redirect:" + listUrl(semesterKey, lectureKey);
+        }
         if(!userService.isUserLoggedIn() || !userService.isUserAdmin()){
-            // TODO display permission error message
-            System.out.println("User not logged in or not administrator");
+            redirectAttributes.addFlashAttribute("errorTitle", "Could not create session");
+            redirectAttributes.addFlashAttribute("errorMessage", "User not signed in or not an administrator");
             return "redirect:" + listUrl(semesterKey, lectureKey);
         }
         if(session.getTitle().isEmpty()) {
-            // TODO display message that title should not be empty
-            System.out.println("Title should not be empty");
+            redirectAttributes.addFlashAttribute("errorTitle", "Could not create session");
+            redirectAttributes.addFlashAttribute("errorMessage", "Title is a required field");
             return "redirect:" + listUrl(semesterKey, lectureKey);
         }
         if(ObjectifyService.ofy().load().type(Session.class).parent(session.getLecture()).id(session.getSlug()).now() != null) {
-            // TODO display message that session with this title/slug already exists in this semester
-            System.out.println("session with this title already exists in this lecture");
+            redirectAttributes.addFlashAttribute("errorTitle", "Could not create session");
+            redirectAttributes.addFlashAttribute("errorMessage", "Session with this title already exists in this lecture");
             return "redirect:" + listUrl(semesterKey, lectureKey);
         }
         // Save session
         ObjectifyService.ofy().save().entity(session).now();
         // Redirect to session list
-        // TODO display success message
+        redirectAttributes.addFlashAttribute("successMessage", "Session successfully created");
         return "redirect:" + listUrl(semesterKey, lectureKey);
     }
 
     @PostMapping("/{semesterSlug}/{lectureSlug}/sessions/{sessionSlug}/activate")
     public String activate(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                           @PathVariable String sessionSlug, Model model){
+                           @PathVariable String sessionSlug, RedirectAttributes redirectAttributes){
         // Prepare keys
         Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
@@ -109,13 +114,14 @@ public class SessionController extends BaseController {
         // Save the sessions back to the datastore
         ObjectifyService.ofy().save().entities(sessions);
         // Redirect to session list
+        redirectAttributes.addFlashAttribute("successMessage", "Session successfully activated");
         return "redirect:" + listUrl(semesterKey, lectureKey);
     }
 
     // -- Delete --
     @PostMapping("/{semesterSlug}/{lectureSlug}/sessions/{sessionSlug}/delete")
     public String delete(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                         @PathVariable String sessionSlug, Model model){
+                         @PathVariable String sessionSlug, RedirectAttributes redirectAttributes){
         // Prepare keys
         Key<Semester> semesterKey = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lectureKey = Key.create(semesterKey, Lecture.class, lectureSlug);
@@ -123,7 +129,7 @@ public class SessionController extends BaseController {
         // Delete group
         ObjectifyService.ofy().delete().key(sessionKey);
         // Redirect to group list
-        // TODO display success message
+        redirectAttributes.addFlashAttribute("successMessage", "Session successfully deleted");
         return "redirect:" + listUrl(semesterKey, lectureKey);
     }
 

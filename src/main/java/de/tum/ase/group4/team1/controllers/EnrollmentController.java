@@ -8,20 +8,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class EnrollmentController extends BaseController {
     @PostMapping("/{semesterSlug}/{lectureSlug}/groups/{groupSlug}/enroll")
     public String create(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                         @PathVariable String groupSlug, Model model) {
+                         @PathVariable String groupSlug, RedirectAttributes redirectAttributes) {
         // Prepare keys
         Key<Semester> semester = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lecture = Key.create(semester, Lecture.class, lectureSlug);
         Key<ExerciseGroup> exerciseGroup = Key.create(lecture, ExerciseGroup.class, groupSlug);
         // Validate
         if(!userService.isUserLoggedIn()){
-            // TODO display permission error message
-            System.out.println("User not logged in");
+            redirectAttributes.addFlashAttribute("errorTitle", "Failed to enroll");
+            redirectAttributes.addFlashAttribute("errorMessage", "User not signed in");
             return "redirect:" + listUrl(semester, lecture);
         }
         // Get user
@@ -40,6 +41,7 @@ public class EnrollmentController extends BaseController {
         // Save enrollment
         ObjectifyService.ofy().save().entity(enrollment).now();
         // Redirect to group list
+        redirectAttributes.addFlashAttribute("successMessage", "Successfully enrolled");
         return "redirect:" + listUrl(semester, lecture);
     }
 

@@ -13,7 +13,6 @@
                     </div>
                     <form th:action="${#mvc.url('GC#create').arg(0, semester.slug).arg(1, lecture.slug).build()}"
                           th:object="${groupToCreate}" method="POST">
-                        <input type="hidden" name="lecture" th:value="${lecture.slug}" />
                         <div class="modal-body">
                             <div class="form-group row">
                                 <label for="title" class="col-sm-3 col-form-label">Title</label>
