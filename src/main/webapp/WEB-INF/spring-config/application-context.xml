@@ -8,7 +8,8 @@
     <bean id="thymeleafConfig" class="de.tum.ase.group4.team1.utils.ThymeleafConfig" />
 
     <!-- Disable component scanning because of app engine performance characteristics -->
-    <context:component-scan base-package="de.tum.ase.group4.team1.empty" />
+    <!--context:component-scan base-package="de.tum.ase.group4.team1.empty" /-->
+    <context:annotation-config />
 
     <bean id="dashboardController" class="de.tum.ase.group4.team1.controllers.DashboardController" />
     <bean id="lectureController" class="de.tum.ase.group4.team1.controllers.LectureController" />
