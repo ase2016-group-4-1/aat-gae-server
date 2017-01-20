@@ -8,17 +8,14 @@
     <bean id="thymeleafConfig" class="de.tum.ase.group4.team1.utils.ThymeleafConfig" />
 
     <!-- Disable component scanning because of app engine performance characteristics -->
-    <context:component-scan base-package="de.tum.ase.group4.team1" />
+    <context:component-scan base-package="de.tum.ase.group4.team1.empty" />
 
-    <!--
     <bean id="dashboardController" class="de.tum.ase.group4.team1.controllers.DashboardController" />
     <bean id="lectureController" class="de.tum.ase.group4.team1.controllers.LectureController" />
-    -->
+    <bean id="groupController" class="de.tum.ase.group4.team1.controllers.GroupController" />
+    <bean id="enrollmentController" class="de.tum.ase.group4.team1.controllers.EnrollmentController" />
+    <bean id="sessionController" class="de.tum.ase.group4.team1.controllers.SessionController" />
+    <bean id="attendanceController" class="de.tum.ase.group4.team1.controllers.AttendanceController" />
 
-    <!--bean id="viewResolver"
-          class="org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver">
-        <property name="prefix" value="/WEB-INF/pages/"/>
-        <property name="suffix" value=".jsp"/>
-        <property name="templateMode" value="HTML"/>
-    </bean-->
+    <bean id="apiController" class="de.tum.ase.group4.team1.controllers.APIController" />
 </beans>
