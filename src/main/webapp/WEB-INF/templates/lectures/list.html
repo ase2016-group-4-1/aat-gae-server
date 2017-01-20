@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout/base"
+      th:with="currentPage='lectures/list'">
+    <head>
+        <title>Lecture list</title>
+    </head>
+    <body>
+        <div class="row" layout:fragment="content">
+            <div class="col-md-2">
+                <ul class="nav flex-column semester-list">
+                    <li th:if="${semesters.size()} == 0" class="nav-item text-muted">No semesters found</li>
+                    <li th:each="s : ${semesters}" class="nav-item">
+                        <a class="nav-link"
+                           th:classappend="(${s.slug} eq ${semester.slug}) ? 'active' : ''"
+                           th:href="${#mvc.url('LC#listWithSemester').arg(0, s.slug).build()}"
+                           th:text="${s.title}"></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-10">
+                <h1>Lectures <small>for <span th:text="${semester.title}"></span></small></h1>
+                <table class="table table-hover">
+                    <tr th:if="${lectures.size()} == 0">
+                        <td colspan="2" class="text-center text-muted">
+                            No lectures found.
+                            <span th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+                                Please create one <a data-toggle="modal" data-target="#createLectureModal" href="#">here</a>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr th:each="lecture : ${lectures}">
+                        <td><a th:href="${#mvc.url('LC#detail').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                               th:text="${lecture.title}"></a></td>
+                        <td th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}"
+                            class="text-right align-middle">
+                            <form th:action="${#mvc.url('LC#delete').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                                  class="form-inline" method="post">
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+                <div class="float-right" th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+                    <button class="btn btn-success btn-add" data-toggle="modal" data-target="#createLectureModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                </div>
+            </div>
+
+            <div th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+                <div th:replace="lectures/create :: modal"></div>
+            </div>
+
+        </div>
+    </body>
+</html>

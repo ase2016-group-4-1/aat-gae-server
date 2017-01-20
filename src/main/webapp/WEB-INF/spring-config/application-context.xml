@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="thymeleafConfig" class="de.tum.ase.group4.team1.utils.ThymeleafConfig" />
+
+    <!-- Disable component scanning because of app engine performance characteristics -->
+    <!--context:component-scan base-package="de.tum.ase.group4.team1.empty" /-->
+    <context:annotation-config />
+
+    <bean id="dashboardController" class="de.tum.ase.group4.team1.controllers.DashboardController" />
+    <bean id="lectureController" class="de.tum.ase.group4.team1.controllers.LectureController" />
+    <bean id="groupController" class="de.tum.ase.group4.team1.controllers.GroupController" />
+    <bean id="enrollmentController" class="de.tum.ase.group4.team1.controllers.EnrollmentController" />
+    <bean id="sessionController" class="de.tum.ase.group4.team1.controllers.SessionController" />
+    <bean id="attendanceController" class="de.tum.ase.group4.team1.controllers.AttendanceController" />
+
+    <bean id="apiController" class="de.tum.ase.group4.team1.controllers.APIController" />
+</beans>

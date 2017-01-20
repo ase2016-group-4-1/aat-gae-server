@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<div th:fragment="sessions">
+    <table class="table table-hover">
+        <tr th:if="${sessions.size() == 0}">
+            <td colspan="2" class="text-muted text-center">
+                No sessions found.
+                <span th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+                    Please create one <a data-toggle="modal" data-target="#createSessionModal" href="#">here</a>
+                </span>
+            </td>
+        </tr>
+        <tr th:each="s : ${sessions}" th:class="${s.active} ? 'table-success' : ''">
+            <td th:text="${s.title}"></td>
+            <td th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}" class="text-right align-middle">
+                <form th:action="${#mvc.url('SC#activate').arg(0, semester.slug).arg(1, lecture.slug).arg(2, s.slug).build()}"
+                      th:if="${s.active} eq false" method="post" class="form-inline">
+                    <button type="submit" class="btn btn-secondary">
+                        Activate
+                    </button>
+                </form>
+                <button th:if="${s.active} eq true" class="btn btn-outline-success" disabled>Active</button>
+                <form th:action="${#mvc.url('SC#delete').arg(0, semester.slug).arg(1, lecture.slug).arg(2, s.slug).build()}"
+                      method="post" class="form-inline">
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </td>
+            <td th:if="${userService.isUserLoggedIn()} and !${userService.isUserAdmin()}" class="text-right align-middle">
+                <button th:if="${s.active} eq true" class="btn btn-outline-success" disabled>Active</button>
+                <form th:action="${#mvc.url('AC#create').arg(0, semester.slug).arg(1, lecture.slug).arg(2, s.slug).build()}"
+                      class="form-inline" method="post" th:if="${attendanceMap.containsKey(s.slug)} eq false and ${s.active}">
+                    <button type="submit" class="btn btn-outline-primary">
+                        Attend
+                    </button>
+                </form>
+                <div th:if="${attendanceMap.containsKey(s.slug)}" style="display: inline-block;">
+                    <button th:if="${attendanceMap.get(s.slug).verifiedAt} == null" class="btn btn-outline-warning" disabled>
+                        Pending
+                    </button>
+                    <button th:if="${attendanceMap.get(s.slug).verifiedAt} != null" class="btn btn-outline-success" disabled>
+                        Verified
+                    </button>
+                </div>
+            </td>
+            <td th:if="${!userService.isUserLoggedIn()}" class="text-right align-middle">
+                <button th:if="${s.active} eq true" class="btn btn-outline-success" disabled>Active</button>
+                <a th:href="${userService.createLoginURL(#request.getRequestURI())}" class="btn btn-secondary">
+                    Sign in
+                </a>
+            </td>
+        </tr>
+    </table>
+    <div class="float-right" th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+        <button class="btn btn-success btn-add" data-toggle="modal" data-target="#createSessionModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+    </div>
+    <div th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+        <div th:replace="sessions/create :: modal"></div>
+    </div>
+</div>
+</body>
+</html>

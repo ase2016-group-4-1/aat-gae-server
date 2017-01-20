@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout/base"
+      th:with="currentPage='lectures/detail'">
+<head>
+    <title th:text="${lecture.title}"></title>
+</head>
+<body>
+<div class="row" layout:fragment="content">
+    <div class="col-md-2">
+        <h1>
+            <a th:href="${#mvc.url('LC#listWithSemester').arg(0, semester.slug).build()}" class="btn btn-secondary">
+                <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                <span th:text="${semester.title}"></span>
+            </a>
+        </h1>
+    </div>
+    <div class="col-md-10">
+        <h1>
+            <span th:text="${lecture.title}"></span>
+        </h1>
+    </div>
+    <div class="col-md-10 offset-md-2">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${activeTab} == 'groups' ? 'active' : ''"
+                   th:href="${#mvc.url('GC#list').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                   role="tab">Groups</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${activeTab} == 'sessions' ? 'active' : ''"
+                   th:href="${#mvc.url('SC#list').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                   role="tab">Sessions</a>
+            </li>
+        </ul>
+
+        <div th:if="${activeTab} == 'groups'">
+            <div th:replace="groups/list :: groups"></div>
+        </div>
+        <div th:if="${activeTab} == 'sessions'">
+            <div th:replace="sessions/list :: sessions"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

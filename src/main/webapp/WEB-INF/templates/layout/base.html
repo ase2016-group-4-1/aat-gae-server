@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Automated Attendance Tracking</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
+    <link layout:fragment="styles"/>
+</head>
+<body>
+
+<nav th:replace="layout/nav :: nav"></nav>
+
+<div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${successMessage} != null">
+    <div class="container">
+        <div class="col-md-6 offset-md-3">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 th:text="${successTitle}" th:if="${successTitle} != null"></h4>
+            <p th:text="${successMessage}" class="mb-0"></p>
+        </div>
+    </div>
+</div>
+<div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorMessage} != null">
+    <div class="container">
+        <div class="col-md-6 offset-md-3">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 th:text="${errorTitle}" th:if="${errorTitle} != null"></h4>
+            <p th:text="${errorMessage}" class="mb-0"></p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div layout:fragment="content" class="text-center">
+        <p>Lorem Ipsum</p>
+    </div>
+</div>
+
+<!-- jQuery first, then Tether, then Bootstrap JS. -->
+<script src="/js/jquery-3.1.1.slim.min.js"></script>
+<script src="/js/tether.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<div layout:fragment="scripts"></div>
+<script>
+    $(document).ready(function () {
+        $(".modal").on('shown.bs.modal', function () {
+            $(this).find("input:visible:first").focus();
+        });
+    });
+</script>
+</body>
+</html>

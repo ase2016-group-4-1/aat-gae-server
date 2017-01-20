@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <nav th:fragment="nav" class="navbar navbar-toggleable-md navbar-light bg-faded">
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="/">AAT</a>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item" th:classappend="${currentPage.equals('dashboard')} ? 'active'">
+                        <a class="nav-link" th:href="@{${#mvc.url('DC#dashboard').build()}}">Dashboard</a>
+                    </li>
+                    <li class="nav-item" th:classappend="${currentPage.startsWith('lectures')} ? 'active'">
+                        <a class="nav-link" th:href="@{${#mvc.url('LC#list').build()}}">Lectures</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item" th:if="${!userService.isUserLoggedIn()}"><a class="nav-link" th:href="${userService.createLoginURL(#request.getRequestURI())}">Sign in</a></li>
+                    <li class="nav-item dropdown" th:if="${userService.isUserLoggedIn()}">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdownMenuLink"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span th:text="${user.email}"></span>
+                            <span th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">(Admin)</span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="userDropdownMenuLink">
+                            <!--<a class="dropdown-item" href="#" th:if="${userService.isUserAdmin()}">Admin</a>-->
+                            <a class="dropdown-item" th:href="${userService.createLogoutURL(#request.getRequestURI())}">Sign out</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </body>
+</html>

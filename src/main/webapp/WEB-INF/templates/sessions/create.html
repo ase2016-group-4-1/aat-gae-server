@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div class="row" th:fragment="modal">
+        <div class="modal fade" id="createSessionModal" tabindex="-1" role="dialog" aria-labelledby="createSessionModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createGroupModalLabel">Start new session</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form th:action="${#mvc.url('SC#create').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                          th:object="${sessionToCreate}" method="POST">
+                        <div class="modal-body">
+                            <div class="form-group row">
+                                <label for="title" class="col-sm-3 col-form-label">Title</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="title" th:autofocus="true"
+                                           th:field="*{title}" placeholder="Session title"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

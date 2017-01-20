@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<div th:fragment="groups">
+    <table class="table table-hover">
+        <tr th:if="${groups.size() == 0}">
+            <td colspan="2" class="text-muted text-center">
+                No exercise groups found.
+                <span th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+                    Please create one <a data-toggle="modal" data-target="#createGroupModal" href="#">here</a>
+                </span>
+            </td>
+        </tr>
+        <tr th:each="group : ${groups}" th:class="(${enrollment} != null) and (${enrollment.exerciseGroup.name} == ${group.slug})  ? 'table-success' : ''">
+            <td th:text="${group.title}"></td>
+            <td th:if="${userService.isUserLoggedIn()} and ${!userService.isUserAdmin()}" class="text-right align-middle">
+                <form th:action="${#mvc.url('EC#create').arg(0, semester.slug).arg(1, lecture.slug).arg(2, group.slug).build()}" method="post">
+                    <button type="submit" class="btn btn-secondary" th:if="(${enrollment} == null) or ${enrollment.exerciseGroup.name} != ${group.slug}">
+                        <span th:if="${enrollment} == null">
+                            Enroll
+                        </span>
+                        <span th:if="${enrollment} != null">
+                            Switch
+                        </span>
+                    </button>
+                </form>
+                <button th:if="(${enrollment} != null) and (${enrollment.exerciseGroup.name} == ${group.slug})"
+                        class="btn btn-outline-success" disabled>
+                    Enrolled
+                </button>
+            </td>
+            <td th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}" class="text-right align-middle">
+                <form th:action="${#mvc.url('GC#delete').arg(0, semester.slug).arg(1, lecture.slug).arg(2, group.slug).build()}" class="form-inline" method="post">
+                    <button class="btn btn-secondary">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </td>
+            <td th:if="${userService.isUserLoggedIn()} eq false" class="text-right align-middle">
+                <a th:href="${userService.createLoginURL(#request.getRequestURI())}" class="btn btn-secondary">
+                    Sign in
+                </a>
+            </td>
+        </tr>
+    </table>
+    <div class="float-right" th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+        <button class="btn btn-success btn-add" data-toggle="modal" data-target="#createGroupModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+    </div>
+    <div th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+        <div th:replace="groups/create :: modal"></div>
+    </div>
+</div>
+</body>
+</html>
