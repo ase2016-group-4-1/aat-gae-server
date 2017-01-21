@@ -12,6 +12,7 @@ public class Enrollment {
     @Index Key<AATUser> user;
     @Index Key<Lecture> lecture;
     @Index Key<ExerciseGroup> exerciseGroup;
+    @Index boolean bonus;
 
     public Enrollment() { }
 
@@ -26,6 +27,9 @@ public class Enrollment {
 
     public Key<ExerciseGroup> getExerciseGroup() { return exerciseGroup; }
     public void setExerciseGroup(Key<ExerciseGroup> exerciseGroup) { this.exerciseGroup = exerciseGroup; }
+
+    public boolean getBonus() { return bonus; }
+    public void setBonus(boolean bonus) { this.bonus = bonus; }
 
     @Override
     public String toString() {

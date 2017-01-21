@@ -31,5 +31,8 @@ public abstract class BaseController {
             model.addAttribute("aatUser", aatUser);
             this.aatUser = aatUser;
         }
+
+        String requestUrl = request.getRequestURI();
+        model.addAttribute("requestUrl", requestUrl);
     }
 }

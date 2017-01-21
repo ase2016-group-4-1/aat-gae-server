@@ -23,7 +23,7 @@ public class LectureController extends BaseController{
     private LectureService lectureService = new LectureService();
 
     // -- List --
-    @GetMapping({"/lectures"})
+    @GetMapping({"", "/lectures"})
     public String list(Model model) {
         Semester semester = semesterService.getCurrentSemester();
         populateModel(semester, model);

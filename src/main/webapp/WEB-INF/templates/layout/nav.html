@@ -8,9 +8,6 @@
             <a class="navbar-brand" href="/">AAT</a>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item" th:classappend="${currentPage.equals('dashboard')} ? 'active'">
-                        <a class="nav-link" th:href="@{${#mvc.url('DC#dashboard').build()}}">Dashboard</a>
-                    </li>
                     <li class="nav-item" th:classappend="${currentPage.startsWith('lectures')} ? 'active'">
                         <a class="nav-link" th:href="@{${#mvc.url('LC#list').build()}}">Lectures</a>
                     </li>
@@ -24,7 +21,6 @@
                             <span th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">(Admin)</span>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="userDropdownMenuLink">
-                            <!--<a class="dropdown-item" href="#" th:if="${userService.isUserAdmin()}">Admin</a>-->
                             <a class="dropdown-item" th:href="${userService.createLogoutURL(#request.getRequestURI())}">Sign out</a>
                         </div>
                     </li>

@@ -33,3 +33,7 @@ span.enrollment-check {
 form.form-inline {
     display: inline-block;
 }
+
+div.notify-button {
+    margin: .75rem;
+}

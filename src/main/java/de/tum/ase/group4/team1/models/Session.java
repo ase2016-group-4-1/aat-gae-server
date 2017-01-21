@@ -80,6 +80,8 @@ public class Session {
                 } else {
                     attendanceStatus.put("status", "verified");
                 }
+            } else {
+                attendanceStatus.put("status", "none");
             }
         }
         return attendanceStatus;

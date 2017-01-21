@@ -21,6 +21,7 @@ public class Attendance {
     @Index Key<ExerciseGroup> exerciseGroupOnCreation;
     @Index Key<ExerciseGroup> exerciseGroupOnVerification;
     @Index String verificationToken;
+    @Index String mode;
 
     // Secure random objects are expensive to initialize, so do this once and keep it around
     static private SecureRandom random;
@@ -62,4 +63,7 @@ public class Attendance {
 
     public String getVerificationToken() { return verificationToken; }
     public void setVerificationToken(String verificationToken) { this.verificationToken = verificationToken; }
+
+    public String getMode() { return mode; }
+    public void setMode(String mode) { this.mode = mode; }
 }

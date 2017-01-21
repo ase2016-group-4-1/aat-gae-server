@@ -11,12 +11,12 @@
     <!--context:component-scan base-package="de.tum.ase.group4.team1.empty" /-->
     <context:annotation-config />
 
-    <bean id="dashboardController" class="de.tum.ase.group4.team1.controllers.DashboardController" />
     <bean id="lectureController" class="de.tum.ase.group4.team1.controllers.LectureController" />
     <bean id="groupController" class="de.tum.ase.group4.team1.controllers.GroupController" />
     <bean id="enrollmentController" class="de.tum.ase.group4.team1.controllers.EnrollmentController" />
     <bean id="sessionController" class="de.tum.ase.group4.team1.controllers.SessionController" />
     <bean id="attendanceController" class="de.tum.ase.group4.team1.controllers.AttendanceController" />
+    <bean id="notificationController" class="de.tum.ase.group4.team1.controllers.NotificationController" />
 
     <bean id="apiController" class="de.tum.ase.group4.team1.controllers.APIController" />
 </beans>
