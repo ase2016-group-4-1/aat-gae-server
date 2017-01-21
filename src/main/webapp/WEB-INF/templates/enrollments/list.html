@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <body>
+        <div th:fragment="enrollments">
+            <div class="notify-button pull-right">
+                <form th:action="${#mvc.url('NC#notify').arg(0, semester.slug).arg(1, lecture.slug).build()}" method="post">
+                    <button type="submit" class="btn btn-primary">Notify students</button>
+                </form>
+            </div>
+            <table class="table table-hover">
+                <tr th:if="${enrollments.size() == 0}">
+                    <td colspan="2" class="text-muted text-center">
+                        No enrollments found.
+                    </td>
+                </tr>
+                <tr th:each="enrollment : ${enrollments}">
+                    <td th:text="${users.get(enrollment).email}"></td>
+                    <td class="text-right align-middle">
+                        <button class="btn btn-outline-success"
+                                th:if="${enrollment.bonus} eq true and ${enrollment.notificationSentAt} != null"
+                                th:title="'Notified on' + ${enrollment.notificationSentAt}" disabled>
+                            Bonus earned
+                        </button>
+                        <button class="btn btn-outline-danger"
+                                th:if="${enrollment.bonus} eq false and ${enrollment.notificationSentAt} != null"
+                                th:title="'Notified on' + ${enrollment.notificationSentAt}" disabled>
+                            Bonus failed
+                        </button>
+                        <button class="btn btn-outline-secondary"
+                                th:if="${enrollment.notificationSentAt} eq null" disabled>
+                            Not computed
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

@@ -23,15 +23,15 @@ public class LectureController extends BaseController{
     private LectureService lectureService = new LectureService();
 
     // -- List --
-    @GetMapping({"/lectures"})
-    public String list(Model model) {
+    @GetMapping({"/", "/lectures"})
+    public String list(Model model, RedirectAttributes redirectAttributes) {
         Semester semester = semesterService.getCurrentSemester();
         populateModel(semester, model);
         return "lectures/list";
     }
 
     @GetMapping("/{semesterSlug}")
-    public String listWithSemester(@PathVariable String semesterSlug, Model model) {
+    public String listWithSemester(@PathVariable String semesterSlug, Model model, RedirectAttributes redirectAttributes) {
         Semester semester = semesterService.loadSemester(semesterSlug);
         if(semester == null){
             throw new NotFoundException();
@@ -85,7 +85,7 @@ public class LectureController extends BaseController{
     // -- Detail --
     @GetMapping("/{semesterSlug}/{lectureSlug}")
     public String detail(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                         Model model){
+                         RedirectAttributes redirectAttributes){
         // Prepare keys
         Key<Semester> semester = Key.create(Semester.class, semesterSlug);
         Key<Lecture> lecture = Key.create(semester, Lecture.class, lectureSlug);

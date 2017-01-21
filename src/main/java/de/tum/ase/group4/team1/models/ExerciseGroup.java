@@ -70,6 +70,6 @@ public class ExerciseGroup {
     @JsonProperty("verificationUrl")
     String getVerificationUrl(){
         return MvcUriComponentsBuilder.fromMappingName("APIC#verifyAttendance")
-                .arg(0, lecture.getParent().getName()).arg(1, lecture.getName()).arg(2, slug).arg(3, "REPLACE_WITH_TOKEN").build();
+                .arg(0, lecture.getParent().getName()).arg(1, lecture.getName()).arg(2, slug).arg(3, "REPLACE_WITH_TOKEN").arg(4, "REPLACE_WITH_MODE").build();
     }
 }

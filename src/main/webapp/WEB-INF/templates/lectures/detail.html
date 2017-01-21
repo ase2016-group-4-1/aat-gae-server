@@ -20,8 +20,7 @@
         <h1>
             <span th:text="${lecture.title}"></span>
         </h1>
-    </div>
-    <div class="col-md-10 offset-md-2">
+
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
                 <a class="nav-link" th:classappend="${activeTab} == 'groups' ? 'active' : ''"
@@ -33,6 +32,11 @@
                    th:href="${#mvc.url('SC#list').arg(0, semester.slug).arg(1, lecture.slug).build()}"
                    role="tab">Sessions</a>
             </li>
+            <li class="nav-item" th:if="${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+                <a class="nav-link" th:classappend="${activeTab} == 'enrollments' ? 'active' : ''"
+                   th:href="${#mvc.url('EC#list').arg(0, semester.slug).arg(1, lecture.slug).build()}"
+                   role="tab">Enrollments</a>
+            </li>
         </ul>
 
         <div th:if="${activeTab} == 'groups'">
@@ -40,6 +44,9 @@
         </div>
         <div th:if="${activeTab} == 'sessions'">
             <div th:replace="sessions/list :: sessions"></div>
+        </div>
+        <div th:if="${activeTab} == 'enrollments' and ${userService.isUserLoggedIn()} and ${userService.isUserAdmin()}">
+            <div th:replace="enrollments/list :: enrollments"></div>
         </div>
     </div>
 </div>

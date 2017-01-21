@@ -6,12 +6,16 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 
+import java.util.Date;
+
 @Entity
 public class Enrollment {
     @Id Long id;
     @Index Key<AATUser> user;
     @Index Key<Lecture> lecture;
     @Index Key<ExerciseGroup> exerciseGroup;
+    @Index boolean bonus;
+    @Index Date notificationSentAt;
 
     public Enrollment() { }
 
@@ -26,6 +30,12 @@ public class Enrollment {
 
     public Key<ExerciseGroup> getExerciseGroup() { return exerciseGroup; }
     public void setExerciseGroup(Key<ExerciseGroup> exerciseGroup) { this.exerciseGroup = exerciseGroup; }
+
+    public boolean getBonus() { return bonus; }
+    public void setBonus(boolean bonus) { this.bonus = bonus; }
+
+    public Date getNotificationSentAt() { return notificationSentAt; }
+    public void setNotificationSentAt(Date notificationSentAt) { this.notificationSentAt = notificationSentAt; }
 
     @Override
     public String toString() {

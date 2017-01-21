@@ -41,8 +41,11 @@
                     <button th:if="${attendanceMap.get(s.slug).verifiedAt} == null" class="btn btn-outline-warning" disabled>
                         Pending
                     </button>
-                    <button th:if="${attendanceMap.get(s.slug).verifiedAt} != null" class="btn btn-outline-success" disabled>
-                        Verified
+                    <button th:if="${attendanceMap.get(s.slug).verifiedAt} != null and (${attendanceMap.get(s.slug).mode} == null or ${attendanceMap.get(s.slug).mode} eq 'attendance')" class="btn btn-outline-success" disabled>
+                        Attended
+                    </button>
+                    <button th:if="${attendanceMap.get(s.slug).verifiedAt} != null and ${attendanceMap.get(s.slug).mode} eq 'presentation'" class="btn btn-outline-success" disabled>
+                        Presented
                     </button>
                 </div>
             </td>
