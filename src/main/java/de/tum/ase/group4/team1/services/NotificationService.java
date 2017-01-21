@@ -14,6 +14,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,13 +32,15 @@ public class NotificationService {
 
             AATUser user = ObjectifyService.ofy().load().key(userKey).now();
             Lecture lecture = ObjectifyService.ofy().load().key(lectureKey).now();
+            enrollment.setNotificationSentAt(new Date());
             if((countOfAttendances + countOfPresentations >= countOfSessions - 2) && countOfPresentations > 0){
                 enrollment.setBonus(true);
-                ObjectifyService.ofy().save().entity(enrollment).now();
                 sendEmail(user.getEmail(), lecture.getTitle(), true);
             } else {
+                enrollment.setBonus(false);
                 sendEmail(user.getEmail(), lecture.getTitle(), false);
             }
+            ObjectifyService.ofy().save().entity(enrollment).now();
         }
     }
 

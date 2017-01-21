@@ -18,7 +18,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api")
 public class APIController extends BaseController {
-    @GetMapping("/lectures")
+    @GetMapping({"/","/lectures"})
     @JsonView(Lecture.Default.class)
     public List<Lecture> lectureList(){
         List<Lecture> lectures = ObjectifyService.ofy().load().type(Lecture.class).list();
