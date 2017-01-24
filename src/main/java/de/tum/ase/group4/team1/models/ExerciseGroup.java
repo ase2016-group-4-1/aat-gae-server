@@ -7,10 +7,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Load;
-import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.annotation.*;
 import de.tum.ase.group4.team1.services.AATUserService;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
@@ -52,24 +49,11 @@ public class ExerciseGroup {
 
     @JsonView(Lecture.Default.class)
     @JsonProperty("enrolled")
-    boolean enrollmentStatus() {
-        UserService userService = UserServiceFactory.getUserService();
-        if(userService.isUserLoggedIn()) {
-            User user = userService.getCurrentUser();
-            AATUser aatUser = AATUserService.getOrCreateAATUser(user);
-            int count = ObjectifyService.ofy().load().type(Enrollment.class)
-                    .filter("user", Key.create(aatUser)).filter("lecture", lecture).filter("exerciseGroup", Key.create(this)).count();
-            if(count != 0){
-                return true;
-            }
-        }
-        return false;
-    }
+    @Ignore
+    public boolean enrollmentStatus = false;
 
     @JsonView(Lecture.Default.class)
     @JsonProperty("verificationUrl")
-    String getVerificationUrl(){
-        return MvcUriComponentsBuilder.fromMappingName("APIC#verifyAttendance")
-                .arg(0, lecture.getParent().getName()).arg(1, lecture.getName()).arg(2, slug).arg(3, "REPLACE_WITH_TOKEN").arg(4, "REPLACE_WITH_MODE").build();
-    }
+    @Ignore
+    public String verificationUrl = "";
 }

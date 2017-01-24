@@ -8,6 +8,7 @@ import com.googlecode.objectify.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -53,13 +54,11 @@ public class Lecture {
 
     @JsonView(Default.class)
     @JsonProperty("exerciseGroups")
-    List<ExerciseGroup> loadExerciseGroups() {
-        return ObjectifyService.ofy().load().type(ExerciseGroup.class).ancestor(Key.create(semester, Lecture.class, slug)).list();
-    }
+    @Ignore
+    public List<ExerciseGroup> exerciseGroups = new ArrayList<>();
 
     @JsonView(Default.class)
     @JsonProperty("sessions")
-    List<Session> loadSessions() {
-        return ObjectifyService.ofy().load().type(Session.class).ancestor(Key.create(semester, Lecture.class, slug)).list();
-    }
+    @Ignore
+    public List<Session> sessions = new ArrayList<>();
 }
