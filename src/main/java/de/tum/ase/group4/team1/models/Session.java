@@ -64,26 +64,11 @@ public class Session {
 
     @JsonView(Lecture.Default.class)
     @JsonProperty("attendance")
-    Map<String, Object> attendanceStatus() {
-        Map<String, Object> attendanceStatus = new HashMap<>();
-        UserService userService = UserServiceFactory.getUserService();
-        if(userService.isUserLoggedIn()) {
-            User user = userService.getCurrentUser();
-            AATUser aatUser = AATUserService.getOrCreateAATUser(user);
-            Attendance attendance = ObjectifyService.ofy().load().type(Attendance.class)
-                    .filter("user", Key.create(aatUser)).filter("lecture", lecture).filter("session", Key.create(this))
-                    .first().now();
-            if(attendance != null) {
-                if (attendance.verifiedAt == null) {
-                    attendanceStatus.put("status", "pending");
-                    attendanceStatus.put("verificationToken", attendance.verificationToken);
-                } else {
-                    attendanceStatus.put("status", "verified");
-                }
-            } else {
-                attendanceStatus.put("status", "none");
-            }
-        }
-        return attendanceStatus;
-    }
+    @Ignore
+    public Map<String, Object> attendance = new HashMap<>();
+
+    @JsonView(Lecture.Default.class)
+    @JsonProperty("attendanceUrl")
+    @Ignore
+    public String attendanceUrl = "";
 }
