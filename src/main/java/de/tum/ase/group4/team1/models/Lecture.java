@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -61,4 +62,10 @@ public class Lecture {
     @JsonProperty("sessions")
     @Ignore
     public List<Session> sessions = new ArrayList<>();
+
+    @JsonView(Default.class)
+    @JsonProperty("href")
+    public String getHref(){
+        return MvcUriComponentsBuilder.fromMappingName("LC#detail").arg(0, semester.getName()).arg(1, slug).build();
+    }
 }

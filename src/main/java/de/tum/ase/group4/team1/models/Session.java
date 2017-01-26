@@ -66,4 +66,9 @@ public class Session {
     @JsonProperty("attendance")
     @Ignore
     public Map<String, Object> attendance = new HashMap<>();
+
+    @JsonView(Lecture.Default.class)
+    @JsonProperty("attendanceUrl")
+    @Ignore
+    public String attendanceUrl = "";
 }

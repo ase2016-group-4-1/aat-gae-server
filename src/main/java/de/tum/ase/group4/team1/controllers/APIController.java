@@ -16,13 +16,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api")
 public class APIController extends BaseController {
     @GetMapping({"/","/lectures"})
     @JsonView(Lecture.Default.class)
-    public List<Lecture> lectureList(@RequestHeader("Authorization") String auth){
+    public List<Lecture> lectureList(@RequestHeader(value = "Authorization", required = false) String auth){
         checkAuth(auth);
         List<Lecture> lectures = ObjectifyService.ofy().load().type(Lecture.class).list();
         List<Lecture> lecturesWithoutEmptyGroups = new ArrayList<>(lectures.size());
@@ -61,9 +62,47 @@ public class APIController extends BaseController {
                         session.attendance.put("status", "none");
                     }
                 }
+                session.attendanceUrl = MvcUriComponentsBuilder.fromMappingName("APIC#attendSession")
+                        .arg(0, lecture.getSemester().getName()).arg(1, lecture.getSlug()).arg(2, session.getSlug())
+                        .build();
             }
         }
         return lecturesWithoutEmptyGroups;
+    }
+
+    @PostMapping("/{semesterSlug}/{lectureSlug}/sessions/{sessionSlug}/attend")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> attendSession(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
+                                                             @PathVariable String sessionSlug, @RequestHeader("Authorization") String auth){
+        Map<String, Object> resp = new HashMap<>();
+        // Check Auth
+        if(!checkAuth(auth)){
+            resp.put("status", "error");
+            resp.put("message", "Auth failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resp);
+        }
+        // Prepare keys
+        Key<Semester> semester = Key.create(Semester.class, semesterSlug);
+        Key<Lecture> lecture = Key.create(semester, Lecture.class, lectureSlug);
+        Key<Session> session = Key.create(lecture, Session.class, sessionSlug);
+
+        Enrollment enrollment = ObjectifyService.ofy().load().type(Enrollment.class)
+                .filter("lecture", lecture).filter("user", Key.create(aatUser)).first().now();
+        if(enrollment == null) {
+            resp.put("status", "error");
+            resp.put("message", "No enrollment found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
+        }
+        Attendance attendance = new Attendance();
+        attendance.setUser(Key.create(aatUser));
+        attendance.setLecture(lecture);
+        attendance.setSession(session);
+        attendance.setExerciseGroupOnCreation(enrollment.getExerciseGroup());
+        // Save attendance
+        ObjectifyService.ofy().save().entity(attendance).now();
+        resp.put("status", "success");
+        resp.put("verificationToken", attendance.getVerificationToken());
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/{semesterSlug}/{lectureSlug}/groups/{groupSlug}/verify")
@@ -145,17 +184,18 @@ public class APIController extends BaseController {
                 return false;
             }
         } else if(authorizationHeader.startsWith("Bearer ")){
-            String token = authorizationHeader.substring(authorizationHeader.indexOf(' '));
+            String token = authorizationHeader.substring(authorizationHeader.indexOf(' ') + 1);
             try {
-                URL url = new URL("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + URLEncoder.encode(token, "UTF-8"));
+                URL url = new URL("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + token);
                 GoogleVerificationResponse response = mapper.readValue(url, GoogleVerificationResponse.class);
                 System.out.println(mapper.writeValueAsString(response));
-                if(response.verified_email && response.email != null) {
+                if(response.email_verified.contentEquals("true") && response.email != null) {
                     aatUser = ObjectifyService.ofy().load().type(AATUser.class).filter("email", response.email).first().now();
                     if(aatUser == null){
                         System.out.println("User " + response.email + " could not be found");
                         return false;
                     }
+                    Logger.getAnonymousLogger().info("Auth with user " + aatUser.getEmail());
                     System.out.println("Auth with user " + aatUser.getEmail());
                     return true;
                 } else {
