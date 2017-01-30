@@ -57,6 +57,7 @@ public class APIController extends BaseController {
                             session.attendance.put("verificationToken", attendance.getVerificationToken());
                         } else {
                             session.attendance.put("status", "verified");
+                            session.attendance.put("verificationToken", attendance.getVerificationToken());
                         }
                     } else {
                         session.attendance.put("status", "none");
