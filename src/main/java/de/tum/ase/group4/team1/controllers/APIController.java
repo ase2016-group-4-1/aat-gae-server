@@ -14,13 +14,14 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api")
 public class APIController extends BaseController {
+    private ObjectMapper mapper = new ObjectMapper();
+
     @GetMapping({"/","/lectures"})
     @JsonView(Lecture.Default.class)
     public List<Lecture> lectureList(@RequestHeader(value = "Authorization", required = false) String auth){
@@ -137,42 +138,6 @@ public class APIController extends BaseController {
         return ResponseEntity.ok(resp);
     }
 
-    // TODO remove this - temporary endpoint for testing the verification
-    @PostMapping("/{semesterSlug}/{lectureSlug}/groups/{groupSlug}/unverify")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> unverifyAttendance(@PathVariable String semesterSlug, @PathVariable String lectureSlug,
-                                                                  @PathVariable String groupSlug, @RequestParam String token,
-                                                                  @RequestParam String mode,
-                                                                  @RequestHeader("Authorization") String auth) {
-        Map<String, Object> resp = new HashMap<>();
-        if(!checkAuth(auth)){
-            resp.put("status", "error");
-            resp.put("message", "Auth failed");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resp);
-        }
-        Attendance attendance = ObjectifyService.ofy().load().type(Attendance.class)
-                .filter("verificationToken", token).first().now();
-        if(attendance == null){
-            resp.put("status", "error");
-            resp.put("message", "Could not find specified attendance");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
-        }
-        attendance.setVerifiedAt(null);
-        attendance.setMode(null);
-        attendance.setExerciseGroupOnVerification(null);
-        ObjectifyService.ofy().save().entity(attendance);
-        resp.put("status", "success");
-        return ResponseEntity.ok(resp);
-    }
-
-    // TODO: remove this - temporary endpoint for testing auth from the android app
-    @GetMapping("/currentUserInfo")
-    public AATUser currentUserInfo(@RequestHeader("Authorization") String auth) {
-        checkAuth(auth);
-        return aatUser;
-    }
-
-    ObjectMapper mapper = new ObjectMapper();
     private boolean checkAuth(String authorizationHeader){
         if(authorizationHeader == null) {
             return false;
